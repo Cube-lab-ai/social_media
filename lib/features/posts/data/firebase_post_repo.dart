@@ -5,6 +5,7 @@ import 'package:social_media_firebase/features/posts/domain/repository/post_repo
 class FirebasePostRepo extends PostRepo {
   final CollectionReference _postCollection = FirebaseFirestore.instance
       .collection('post');
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   Future<List<Post>> fetchAllPost() async {
@@ -34,6 +35,31 @@ class FirebasePostRepo extends PostRepo {
       await _postCollection.doc(postId).delete();
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  @override
+  Future<Post?> fetchPostById(String postId) async {
+    try {
+      final DocumentSnapshot<Object?> doc =
+          await _postCollection.doc(postId).get();
+      if (doc.exists) {
+        final docData = doc.data();
+        return Post.fromMap(docData as Map<String, dynamic>);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<void> togglePostLike(Post post) async {
+    try {
+      await _postCollection.doc(post.id).set({"likes": post.likes});
+    } catch (e) {
+      throw Exception('failed to toggle post likes');
     }
   }
 }

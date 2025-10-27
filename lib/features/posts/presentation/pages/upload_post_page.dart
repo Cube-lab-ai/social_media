@@ -60,6 +60,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
       text: captionController.text,
       postImageUrl: '',
       timeStamp: DateTime.now(),
+      likes: [],
     );
 
     if (caption != null && pickedFile != null) {
