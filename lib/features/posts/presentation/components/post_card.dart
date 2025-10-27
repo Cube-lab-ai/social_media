@@ -43,14 +43,14 @@ class _PostCardState extends State<PostCard> {
   void initState() {
     super.initState();
     getCurrentUser();
-    fetchPostProfileUser();
+    fetchProfileUser();
   }
 
   void getCurrentUser() {
     isOnwPost = (widget.post.userId == authCubits.currentUser!.uid);
   }
 
-  void fetchPostProfileUser() async {
+  void fetchProfileUser() async {
     final fetchedUser = await profileCubits.fetchProfileUserById(
       widget.post.userId,
     );
@@ -59,6 +59,32 @@ class _PostCardState extends State<PostCard> {
         profileUser = fetchedUser;
       });
     }
+  }
+
+  void deletePost() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Post'),
+          content: const Text('Are you sure want to delete post'),
+          actions: [
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            const SizedBox(width: 5),
+            InkWell(
+              onTap: () {
+                widget.deletePost();
+                Navigator.pop(context);
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -98,23 +124,11 @@ class _PostCardState extends State<PostCard> {
             trailing:
                 isOnwPost
                     ? IconButton(
-                      onPressed: widget.deletePost,
+                      onPressed: deletePost,
                       icon: Icon(Icons.delete, color: Colors.red),
                     )
                     : SizedBox(),
           ),
-
-          // ClipRect(
-          //   child: Padding(
-          //     padding: EdgeInsets.symmetric(vertical: 15),
-          //     child: Image.network(
-          //       fit: BoxFit.cover,
-          //       post.postImageUrl,
-          //       width: 250,
-          //       height: 200,
-          //     ),
-          //   ),
-          // ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: CachedNetworkImage(
