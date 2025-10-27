@@ -1,0 +1,121 @@
+// ----------------------------------------------------------- BASIC 
+
+void main() {
+  // Simulated QuerySnapshot
+  QuerySnapshot simulatedSnapshot = QuerySnapshot(docs: [
+    QueryDocumentSnapshot(
+      id: 'doc1',
+      data: {
+        'title': 'Hello World',
+        'content': 'This is a post',
+        'timestamp': DateTime.now(),
+      },
+    ),
+    QueryDocumentSnapshot(
+      id: 'doc2',
+      data: {
+        'title': 'Second Post',
+        'content': 'More content here',
+        'timestamp': DateTime.now().subtract(Duration(days: 1)),
+      },
+    ),
+  ]);
+
+  // Mapping and printing document data
+  simulatedSnapshot.docs.map((doc) {
+    print('Document ID: ${doc.id}');
+    print('Data: ${doc.data}');
+  }).toList(); // toList() triggers execution
+}
+
+
+
+class QuerySnapshot {
+  final List<QueryDocumentSnapshot> docs;
+
+  QuerySnapshot({required this.docs});
+}
+
+class QueryDocumentSnapshot {
+  final String id;
+  final Map<String, dynamic> data;
+
+  QueryDocumentSnapshot({required this.id, required this.data});
+}
+
+
+
+----------------------------------------------------------------ADVANCED
+
+
+// Make both classes generic with <T>
+class QuerySnapshot<T> {
+  final List<QueryDocumentSnapshot<T>> docs;
+
+  QuerySnapshot({required this.docs});
+}
+
+class QueryDocumentSnapshot<T> {
+  final String id;
+  final T _data;
+
+  QueryDocumentSnapshot({required this.id, required T data}) : _data = data;
+
+  T data() => _data;
+}
+
+void main() {
+  // Simulated Firestore-like data snapshot
+  QuerySnapshot<Map<String, dynamic>> simulatedSnapshot = QuerySnapshot(
+    docs: [
+      QueryDocumentSnapshot(
+        id: 'doc1',
+        data: {
+          'title': 'First Post',
+          'content': 'This is the first simulated document',
+          'timestamp': DateTime.now(),
+        },
+      ),
+      QueryDocumentSnapshot(
+        id: 'doc2',
+        data: {
+          'title': 'Second Post',
+          'content': 'This is another document',
+          'timestamp': DateTime.now().subtract(Duration(days: 1)),
+        },
+      ),
+    ],
+  );
+
+  // Simulate usage like Firestore
+  simulatedSnapshot.docs.map((doc) {
+    print('Document ID: ${doc.id}');
+    print('Data: ${doc.data()}');
+  }).toList();
+}
+
+
+“If _data is a required field, and I didn’t pass it as _data: in the constructor, why doesn't Dart throw an error?”
+
+✅ Short Answer:
+
+You did pass the value — just not using the name _data.
+You passed it as data:, and then assigned it to _data like this:
+
+
+QueryDocumentSnapshot({required this.id, required T data}) : _data = data;
+So _data is not passed directly — it’s assigned in the initializer list using the data parameter.	
+
+
+
+
+
+
+  FINAL WORKING 
+QueryDocumentSnapshot({required this.id, required T data}) : _data = data;
+this.id: assigns the id parameter to the id field
+
+T data: this is a named parameter, just like id
+
+_data = data: this is where _data gets its value — from the constructor parameter data
+

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "289911457588",
+    "project_id": "socialapp-4beeb",
+    "storage_bucket": "socialapp-4beeb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289911457588:android:2080d55ac19fddb5264761",
+        "android_client_info": {
+          "package_name": "com.example.social_media_firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4Xm7SrEfgcHdHaF98rVIv8fqO5puxUxY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

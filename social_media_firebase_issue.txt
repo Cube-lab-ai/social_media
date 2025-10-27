@@ -1,0 +1,96 @@
+❌ "Uncorrected" Version (with all original mistakes)
+
+void updateProfileUser(
+  ProfileUser? user,
+  PlatformFile? pickedFile,
+  String bio,
+) async {
+  try {
+    emit(ProfileLoadingState());
+
+    final result = await profilerepo.fetchProfileUser(user!.uid);
+
+    if (kIsWeb && pickedFile != null) {
+      final profileImageUrl = await storagerepo.updateProfileImageWeb(
+        pickedFile.bytes,
+        user.uid,
+      );
+    } else if (!kIsWeb && pickedFile != null) {
+      final profileImageUrl = await storagerepo.updateProfileImageMobile(
+        pickedFile.path!,
+        user.uid,
+      );
+    }
+
+    if (result != null) {
+      if (bio.isEmpty) {
+        emit(ProfileFailureState(messaage: 'bio is empty')); // ❌ Wrong condition
+      }
+
+      final updatedProfile = result.copyWith(
+        newBIo: bio,
+        newImageUrl: profileImageUrl!, // ❌ Force unwrap
+      );
+
+      await profilerepo.updateProfileUser(updatedProfile);
+      fetchProfileUser(user.uid);
+    }
+  } catch (e) {
+    throw Exception(e);
+  }
+}
+
+| ❌ Problem                              | Description                                                                                                                                   |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `final profileImageUrl = ...`          | This creates a **new variable scoped inside the `if` block**, which **hides** the outer `profileImageUrl`. The outer variable remains `null`. |
+| `bio.isEmpty` check in the wrong place | The logic is inverted — it's supposed to check `if (bio.isEmpty)` and **emit error**, not proceed to update.                                  |
+| `profileImageUrl!`                     | This can cause a **crash** if `profileImageUrl` was never set (e.g., no image picked).                                                        |
+| `pickedFile.path!`                     | This is used after checking `pickedFile != null`, so `!` is **redundant** and potentially risky.                                              |
+| Uses `throw Exception(e)`              | This rethrows the exception **without emitting failure state**, which doesn't inform the UI or user.                                          |
+
+
+
+✅ Fixed Version Again (for comparison)
+
+void updateProfileUser(
+  ProfileUser? user,
+  PlatformFile? pickedFile,
+  String bio,
+) async {
+  try {
+    emit(ProfileLoadingState());
+
+    final result = await profilerepo.fetchProfileUser(user!.uid);
+    String? profileImageUrl;
+
+    if (kIsWeb && pickedFile != null) {
+      profileImageUrl = await storagerepo.updateProfileImageWeb(
+        pickedFile.bytes,
+        user.uid,
+      );
+    } else if (!kIsWeb && pickedFile != null) {
+      profileImageUrl = await storagerepo.updateProfileImageMobile(
+        pickedFile.path!,
+        user.uid,
+      );
+    }
+
+    if (result != null) {
+      if (bio.isEmpty) {
+        emit(ProfileFailureState(messaage: 'Bio is empty'));
+        return;
+      }
+
+      final updatedProfile = result.copyWith(
+        newBIo: bio,
+        newImageUrl: profileImageUrl,
+      );
+
+      await profilerepo.updateProfileUser(updatedProfile);
+      fetchProfileUser(user.uid); // optionally emit success inside this
+      emit(ProfileSuccessState()); // ✅ Should add this
+    }
+  } catch (e) {
+    emit(ProfileFailureState(messaage: 'Something went wrong: $e'));
+  }
+}
