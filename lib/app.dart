@@ -58,9 +58,11 @@ class _MyAppState extends State<MyApp> {
 
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: lightMode,
-        darkTheme: darkMode,
-        themeMode: ThemeMode.system,
+        // theme: lightMode,
+        // darkTheme: darkMode,
+        // themeMode: ThemeMode.system,
+        theme: darkMode,
+        
         home: Scaffold(
           body: BlocConsumer<AuthCubits, AuthStates>(
             builder: (context, state) {

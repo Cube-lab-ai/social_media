@@ -180,7 +180,12 @@ class _PostCardState extends State<PostCard> {
                           : Icon(Icons.favorite_border_sharp),
                 ),
                 SizedBox(width: 3),
-                Text(widget.post.likes.length.toString()),
+                Text(
+                  widget.post.likes.length.toString(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ],
             ),
           ),

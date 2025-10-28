@@ -11,6 +11,7 @@ class FirebasePostRepo extends PostRepo {
     try {
       QuerySnapshot<Object?> query =
           await _postCollection.orderBy('timeStamp', descending: true).get();
+
       return query.docs
           .map((doc) => Post.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
