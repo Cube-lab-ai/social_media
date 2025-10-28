@@ -186,6 +186,17 @@ class _PostCardState extends State<PostCard> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
+                SizedBox(width: 10),
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.comment_outlined, size: 22),
+                ),
+                Text(
+                  widget.post.comments.length.toString(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ],
             ),
           ),

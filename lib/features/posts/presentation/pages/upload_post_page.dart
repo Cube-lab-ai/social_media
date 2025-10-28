@@ -61,6 +61,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
       postImageUrl: '',
       timeStamp: DateTime.now(),
       likes: [],
+      comments: [],
     );
 
     if (caption != null && pickedFile != null) {

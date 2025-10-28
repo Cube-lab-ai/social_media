@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 import 'package:social_media_firebase/features/posts/domain/repository/post_repo.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_state.dart';
@@ -81,6 +82,23 @@ class PostCubit extends Cubit<PostState> {
       }
     } catch (e) {
       emit(PostErrorState(message: 'Error toggling likes $e'));
+    }
+  }
+
+  Future<void> addComment(Comments comment) async {
+    try {
+      final result = await postRepo.fetchPostById(comment.postId);
+      if (result != null) {
+        result.comments.add(comment);
+        await postRepo.addComment(
+          comment.id,
+          result.comments.map((comment) => comment.toJson()).toList(),
+        );
+      } else {
+        emit(PostErrorState(message: 'Post not found'));
+      }
+    } catch (e) {
+      emit(PostErrorState(message: 'failed to add comment $e'));
     }
   }
 }

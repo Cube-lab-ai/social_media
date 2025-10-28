@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 import 'package:social_media_firebase/features/posts/domain/repository/post_repo.dart';
 
@@ -61,5 +62,23 @@ class FirebasePostRepo extends PostRepo {
     } catch (e) {
       throw Exception('failed to toggle post likes');
     }
+  }
+
+  @override
+  Future<void> addComment(
+    String postId,
+    List<Map<String, dynamic>> comment,
+  ) async {
+    try {
+      await _postCollection.doc(postId).update({"comments": comment});
+    } catch (e) {
+      throw Exception('Unable to update comment $e');
+    }
+  }
+
+  @override
+  Future<void> deleteComment(String postId, String commentId) {
+    // TODO: implement deleteComment
+    throw UnimplementedError();
   }
 }

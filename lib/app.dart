@@ -5,6 +5,7 @@ import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cub
 import 'package:social_media_firebase/features/auth/presentation/cubits/auth_states.dart';
 import 'package:social_media_firebase/features/auth/presentation/pages/auth_pages.dart';
 import 'package:social_media_firebase/features/posts/data/firebase_post_repo.dart';
+import 'package:social_media_firebase/features/posts/presentation/components/shimmer.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/posts/presentation/pages/post_page.dart';
 import 'package:social_media_firebase/features/profile/data/firebase_profile_repository.dart';
@@ -62,7 +63,7 @@ class _MyAppState extends State<MyApp> {
         // darkTheme: darkMode,
         // themeMode: ThemeMode.system,
         theme: darkMode,
-        
+
         home: Scaffold(
           body: BlocConsumer<AuthCubits, AuthStates>(
             builder: (context, state) {
@@ -71,7 +72,7 @@ class _MyAppState extends State<MyApp> {
               } else if (state is UnAuthenticatedState) {
                 return AuthPages();
               } else {
-                return Center(child: CircularProgressIndicator());
+                return PostSkeletonShimmer();
               }
             },
             listener: (context, state) {
