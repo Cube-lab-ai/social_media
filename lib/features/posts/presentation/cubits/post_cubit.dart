@@ -67,7 +67,6 @@ class PostCubit extends Cubit<PostState> {
 
   Future<void> togglePostLike(String userId, String postId) async {
     try {
-      emit(PostLoadingState());
       final result = await postRepo.fetchPostById(postId);
       if (result != null) {
         if (result.likes.contains(userId)) {
@@ -78,10 +77,10 @@ class PostCubit extends Cubit<PostState> {
 
         await postRepo.togglePostLike(result);
       } else {
-        throw Exception('Post Not Found');
+        emit(PostErrorState(message: 'Post not found'));
       }
     } catch (e) {
-      throw Exception('Error toggling likes $e');
+      emit(PostErrorState(message: 'Error toggling likes $e'));
     }
   }
 }

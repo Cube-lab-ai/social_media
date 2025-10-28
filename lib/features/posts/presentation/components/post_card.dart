@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_firebase/features/auth/domain/entities/app_user.dart';
 import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
+import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
 
@@ -19,9 +20,23 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   late final AuthCubits authCubits = context.read<AuthCubits>();
   late final ProfileCubits profileCubits = context.read<ProfileCubits>();
+  late final PostCubit _postCubit = context.read<PostCubit>();
   bool isOnwPost = false;
   AppUser? currentUser;
   ProfileUser? profileUser;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+    fetchProfileUser();
+  }
+
+  void getCurrentUser() {
+    currentUser = authCubits.currentUser!;
+    isOnwPost = (widget.post.userId == currentUser!.uid);
+  }
+
   String dateTimeConvert(DateTime datetime) {
     final now = DateTime.now();
     final difference = now.difference(datetime);
@@ -37,17 +52,6 @@ class _PostCardState extends State<PostCard> {
       final years = (difference.inDays / 365).floor();
       return "$years year ago";
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
-    fetchProfileUser();
-  }
-
-  void getCurrentUser() {
-    isOnwPost = (widget.post.userId == authCubits.currentUser!.uid);
   }
 
   void fetchProfileUser() async {
@@ -85,6 +89,27 @@ class _PostCardState extends State<PostCard> {
         );
       },
     );
+  }
+
+  void togglePostLike() {
+    final isLiked = widget.post.likes.contains(currentUser!.uid);
+
+    setState(() {
+      if (isLiked) {
+        widget.post.likes.remove(currentUser!.uid);
+      } else {
+        widget.post.likes.add(currentUser!.uid);
+      }
+    });
+    _postCubit.togglePostLike(currentUser!.uid, widget.post.id).catchError((
+      error,
+    ) {
+      if (isLiked) {
+        widget.post.likes.add(currentUser!.uid);
+      } else {
+        widget.post.likes.remove(currentUser!.uid);
+      }
+    });
   }
 
   @override
@@ -141,6 +166,22 @@ class _PostCardState extends State<PostCard> {
               errorWidget:
                   (context, url, error) =>
                       CircleAvatar(child: Icon(Icons.error)),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => togglePostLike(),
+                  icon:
+                      widget.post.likes.contains(currentUser!.uid)
+                          ? Icon(Icons.favorite, color: Colors.red)
+                          : Icon(Icons.favorite_border_sharp),
+                ),
+                SizedBox(width: 3),
+                Text(widget.post.likes.length.toString()),
+              ],
             ),
           ),
         ],

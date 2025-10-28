@@ -5,7 +5,6 @@ import 'package:social_media_firebase/features/posts/domain/repository/post_repo
 class FirebasePostRepo extends PostRepo {
   final CollectionReference _postCollection = FirebaseFirestore.instance
       .collection('post');
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   Future<List<Post>> fetchAllPost() async {
@@ -57,7 +56,7 @@ class FirebasePostRepo extends PostRepo {
   @override
   Future<void> togglePostLike(Post post) async {
     try {
-      await _postCollection.doc(post.id).set({"likes": post.likes});
+      await _postCollection.doc(post.id).update({"likes": post.likes});
     } catch (e) {
       throw Exception('failed to toggle post likes');
     }

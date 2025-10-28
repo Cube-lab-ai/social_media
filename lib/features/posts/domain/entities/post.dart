@@ -26,7 +26,7 @@ class Post {
       text: post['text'],
       postImageUrl: post['postImageUrl'],
       timeStamp: (post['timeStamp'] as Timestamp).toDate(),
-      likes: post['likes'] ?? [],
+      likes: List<String>.from(post['likes'] ?? []),
     );
   }
 
@@ -38,7 +38,7 @@ class Post {
       'text': text,
       'postImageUrl': postImageUrl,
       'timeStamp': Timestamp.fromDate(timeStamp),
-      'likes': List<String>.from(likes),
+      'likes': likes,
     };
   }
 
