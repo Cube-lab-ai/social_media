@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 import 'package:social_media_firebase/features/posts/domain/repository/post_repo.dart';
 

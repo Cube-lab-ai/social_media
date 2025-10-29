@@ -87,17 +87,20 @@ class PostCubit extends Cubit<PostState> {
 
   Future<void> addComment(Comments comment) async {
     try {
+      emit(PostLoadingState());
       final result = await postRepo.fetchPostById(comment.postId);
       if (result != null) {
         result.comments.add(comment);
         await postRepo.addComment(
-          comment.id,
+          comment.postId,
           result.comments.map((comment) => comment.toJson()).toList(),
         );
+        fetchAllPost();
       } else {
         emit(PostErrorState(message: 'Post not found'));
       }
     } catch (e) {
+      print(e);
       emit(PostErrorState(message: 'failed to add comment $e'));
     }
   }

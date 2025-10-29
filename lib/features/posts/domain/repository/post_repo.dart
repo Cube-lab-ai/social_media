@@ -1,4 +1,3 @@
-import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 
 abstract class PostRepo {

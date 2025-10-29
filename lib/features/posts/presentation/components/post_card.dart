@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_firebase/features/auth/domain/entities/app_user.dart';
 import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cubits.dart';
+import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
+import 'package:social_media_firebase/features/posts/domain/repository/post_repo.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
@@ -188,7 +191,18 @@ class _PostCardState extends State<PostCard> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<PostCubit>().addComment(
+                      Comments(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        userId: widget.post.userId,
+                        postId: widget.post.id,
+                        userName: widget.post.userName,
+                        text: 'new comment',
+                        timestamp: DateTime.now(),
+                      ),
+                    );
+                  },
                   icon: Icon(Icons.comment_outlined, size: 22),
                 ),
                 Text(
