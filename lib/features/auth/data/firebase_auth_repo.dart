@@ -52,7 +52,7 @@ class FirebaseAuthRepo extends AuthRepo {
         password: password,
       );
 
-      _firebaseFirestore.collection('users').doc(result.user!.uid).set({
+      await _firebaseFirestore.collection('users').doc(result.user!.uid).set({
         "uid": result.user!.uid,
         "name": name,
         "email": result.user!.email!,

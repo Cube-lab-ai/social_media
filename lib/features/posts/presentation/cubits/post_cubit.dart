@@ -104,4 +104,23 @@ class PostCubit extends Cubit<PostState> {
       emit(PostErrorState(message: 'failed to add comment $e'));
     }
   }
+
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      emit(PostLoadingState());
+      final result = await postRepo.fetchPostById(postId);
+      if (result != null) {
+        result.comments.removeWhere((cmt) => cmt.id == commentId);
+        await postRepo.addComment(
+          postId,
+          result.comments.map((comment) => comment.toJson()).toList(),
+        );
+        fetchAllPost();
+      } else {
+        emit(PostErrorState(message: 'Post not found'));
+      }
+    } catch (e) {
+      emit(PostErrorState(message: 'failed to add comment $e'));
+    }
+  }
 }

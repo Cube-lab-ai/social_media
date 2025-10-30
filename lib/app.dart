@@ -62,8 +62,7 @@ class _MyAppState extends State<MyApp> {
         // theme: lightMode,
         // darkTheme: darkMode,
         // themeMode: ThemeMode.system,
-        theme: darkMode,
-
+        theme: lightMode,
         home: Scaffold(
           body: BlocConsumer<AuthCubits, AuthStates>(
             builder: (context, state) {

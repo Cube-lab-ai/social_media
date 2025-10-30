@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_firebase/features/auth/domain/entities/app_user.dart';
 import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cubits.dart';
+import 'package:social_media_firebase/features/components/my_text_field.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/comments.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
-import 'package:social_media_firebase/features/posts/domain/repository/post_repo.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
@@ -21,6 +20,7 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  final TextEditingController _cmtController = TextEditingController();
   late final AuthCubits authCubits = context.read<AuthCubits>();
   late final ProfileCubits profileCubits = context.read<ProfileCubits>();
   late final PostCubit _postCubit = context.read<PostCubit>();
@@ -115,6 +115,125 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
+  void openCommentBox(Post postCmt) {
+    showModalBottomSheet(
+      showDragHandle: true,
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: MyTextField(
+                      hintText: "Enter Comment",
+                      controller: _cmtController,
+                    ),
+                  ),
+
+                  MaterialButton(
+                    onPressed: () {
+                      Comments cmt = Comments(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        userId: currentUser!.uid,
+                        postId: widget.post.id,
+                        userName: currentUser!.name,
+                        text: _cmtController.text,
+                        timestamp: DateTime.now(),
+                      );
+                      context.read<PostCubit>().addComment(cmt);
+                      Navigator.pop(context);
+                    },
+                    child: Text('CMT'),
+                  ),
+                ],
+              ),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: postCmt.comments.length,
+                  itemBuilder: (context, index) {
+                    // checking is own comment
+                    bool isOwnComment = false;
+                    if (currentUser!.uid == postCmt.comments[index].userId) {
+                      isOwnComment = true;
+                    }
+                    return ListTile(
+                      title: Text(
+                        postCmt.comments[index].userName,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        postCmt.comments[index].text,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+
+                      trailing:
+                          isOwnComment
+                              ? IconButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text('Delete'),
+                                          content: Text(
+                                            'Are you sure want to delete this comment',
+                                            style: TextStyle(),
+                                          ),
+                                          actions: [
+                                            InkWell(
+                                              onTap:
+                                                  () => Navigator.pop(context),
+                                              child: Text('Cancel'),
+                                            ),
+                                            SizedBox(width: 3),
+                                            InkWell(
+                                              onTap: () {
+                                                context
+                                                    .read<PostCubit>()
+                                                    .deleteComment(
+                                                      postCmt.id,
+                                                      postCmt
+                                                          .comments[index]
+                                                          .id,
+                                                    );
+
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                },
+                                icon: Icon(Icons.more_horiz),
+                              )
+                              : SizedBox(),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -191,18 +310,7 @@ class _PostCardState extends State<PostCard> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  onPressed: () {
-                    context.read<PostCubit>().addComment(
-                      Comments(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        userId: widget.post.userId,
-                        postId: widget.post.id,
-                        userName: widget.post.userName,
-                        text: 'new comment',
-                        timestamp: DateTime.now(),
-                      ),
-                    );
-                  },
+                  onPressed: () => openCommentBox(widget.post),
                   icon: Icon(Icons.comment_outlined, size: 22),
                 ),
                 Text(
