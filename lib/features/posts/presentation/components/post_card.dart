@@ -9,6 +9,7 @@ import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
+import 'package:social_media_firebase/features/profile/presentation/screens/profile_screen.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -242,22 +243,34 @@ class _PostCardState extends State<PostCard> {
       child: Column(
         children: [
           ListTile(
-            leading:
-                (profileUser != null)
-                    ? Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: CachedNetworkImage(
-                        fit: BoxFit.cover,
-                        imageUrl: profileUser!.profileImageUrl,
-                        width: 40,
-                        height: 40,
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                        placeholder:
-                            (context, url) => CircularProgressIndicator(),
-                      ),
-                    )
-                    : CircleAvatar(child: Icon(Icons.person)),
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ProfileScreen(uid: widget.post.userId),
+                  ),
+                );
+              },
+              child:
+                  (profileUser != null)
+                      ? Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(shape: BoxShape.circle),
+                        child: CachedNetworkImage(
+                          fit: BoxFit.cover,
+                          imageUrl: profileUser!.profileImageUrl,
+                          width: 40,
+                          height: 40,
+                          errorWidget:
+                              (context, url, error) => Icon(Icons.error),
+                          placeholder:
+                              (context, url) => CircularProgressIndicator(),
+                        ),
+                      )
+                      : CircleAvatar(child: Icon(Icons.person)),
+            ),
             title: Text(
               widget.post.userName,
               style: TextStyle(

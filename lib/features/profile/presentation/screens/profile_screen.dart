@@ -4,6 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
+import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
+import 'package:social_media_firebase/features/posts/presentation/cubits/post_state.dart';
 import 'package:social_media_firebase/features/profile/presentation/components/bio_box.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_states.dart';
@@ -120,6 +123,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+                ),
+
+                BlocBuilder<PostCubit, PostState>(
+                  builder: (context, state) {
+                    print(state);
+                    if (state is PostLoadedState) {
+                      final List<Post> postItem =
+                          state.post
+                              .where((post) => post.userId == widget.uid)
+                              .toList();
+
+                      if (postItem.isEmpty) {
+                        return Text(
+                          'No Post Found',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        );
+                      } else {
+                        return Expanded(
+                          child: GridView.builder(
+                            padding: const EdgeInsets.all(25),
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent:
+                                      190, // Max width of each grid item
+                                  crossAxisSpacing: 10, // Space between columns
+                                  mainAxisSpacing: 10, // Space between rows
+                                  childAspectRatio:
+                                      1, // Square cells (width:height = 1:1)
+                                ),
+                            itemCount: postItem.length,
+                            itemBuilder: (context, index) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  8,
+                                ), // Rounded corners (optional)
+                                child: Image.network(
+                                  postItem[index].postImageUrl,
+                                  fit:
+                                      BoxFit
+                                          .cover, // Ensures the image fills the box
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Icon(Icons.error, size: 50),
+                                  loadingBuilder: (
+                                    context,
+                                    child,
+                                    loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
+                    }
+                    return Center(child: Text('data'));
+                  },
                 ),
               ],
             ),
