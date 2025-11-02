@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:social_media_firebase/features/posts/presentation/components/my_drawer_tile.dart';
 import 'package:social_media_firebase/features/profile/presentation/screens/profile_screen.dart';
+import 'package:social_media_firebase/features/search/presentation/search_page.dart';
 
 class MyDarawer extends StatefulWidget {
   const MyDarawer({super.key});
@@ -51,7 +52,12 @@ class _MyDarawerState extends State<MyDarawer> {
                 text: 'P R O F I L E',
               ),
               MyDrawerTile(
-                ontap: () {},
+                ontap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchPage()),
+                  );
+                },
                 icon: Icons.search,
                 text: 'S E A R C H',
               ),

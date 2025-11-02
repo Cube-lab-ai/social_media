@@ -12,7 +12,9 @@ class ProfileCubits extends Cubit<ProfileState> {
   ProfileCubits({required this.profilerepo, required this.storagerepo})
     : super(ProfileInitialState());
 
-  Future<void> fetchProfileUser(String uid) async {
+  Future<void> 
+  
+  fetchProfileUser(String uid) async {
     try {
       emit(ProfileLoadingState());
       ProfileUser? user = await profilerepo.fetchProfileUser(uid);
@@ -87,13 +89,21 @@ class ProfileCubits extends Cubit<ProfileState> {
     }
   }
 
-  void toggleFollow(String currentUserId, String targetUserId) async {
-    // fetch profile for currentuserid, and targetuserid
-    final currentUser = await profilerepo.fetchProfileUser(currentUserId);
-    final targetUser = await profilerepo.fetchProfileUser(targetUserId);
+  Future<void> toggleFollow(String currentUserId, String targetUserId) async {
+    try {
+      // fetch profile for currentuserid, and targetuserid
+      final currentUser = await profilerepo.fetchProfileUser(currentUserId);
+      final targetUser = await profilerepo.fetchProfileUser(targetUserId);
 
-    if (currentUser != null && targetUser != null) {
-      await profilerepo.toggleFollow(currentUser, targetUser);
+      if (currentUser != null && targetUser != null) {
+        await profilerepo.toggleFollow(currentUser, targetUser);
+      } else {
+        emit(ProfileErrorState(message: 'Unable to fetch User'));
+        throw Exception('unable to fetch user');
+      }
+    } catch (e) {
+      emit(ProfileErrorState(message: 'Unable to toggle follow/unfollow $e'));
+      throw Exception('unable to toggle follow/unfollow $e');
     }
   }
 }

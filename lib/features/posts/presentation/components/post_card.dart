@@ -105,14 +105,17 @@ class _PostCardState extends State<PostCard> {
         widget.post.likes.add(currentUser!.uid);
       }
     });
+    
     _postCubit.togglePostLike(currentUser!.uid, widget.post.id).catchError((
       error,
     ) {
-      if (isLiked) {
-        widget.post.likes.add(currentUser!.uid);
-      } else {
-        widget.post.likes.remove(currentUser!.uid);
-      }
+      setState(() {
+        if (isLiked) {
+          widget.post.likes.add(currentUser!.uid);
+        } else {
+          widget.post.likes.remove(currentUser!.uid);
+        }
+      });
     });
   }
 
