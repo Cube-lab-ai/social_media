@@ -18,6 +18,8 @@ class FirebaseProfileRepository extends ProfileRepository {
             email: userdata['email'],
             bio: userdata['bio'] ?? "",
             profileImageUrl: userdata['profileImageUrl'] ?? "",
+            followers: List<String>.from(userdata['followers'] ?? []),
+            following: List<String>.from(userdata['following'] ?? []),
           );
         }
       }
@@ -36,6 +38,30 @@ class FirebaseProfileRepository extends ProfileRepository {
       });
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  @override
+  Future<void> toggleFollow(
+    ProfileUser currentUser,
+    ProfileUser targetUser,
+  ) async {
+    if (currentUser.following.contains(targetUser.uid)) {
+      await _firebaseFirestore.collection('users').doc(currentUser.uid).update({
+        "following": FieldValue.arrayRemove([targetUser.uid]),
+      });
+
+      await _firebaseFirestore.collection('users').doc(targetUser.uid).update({
+        "followers": FieldValue.arrayRemove([currentUser.uid]),
+      });
+    } else {
+      await _firebaseFirestore.collection('users').doc(currentUser.uid).update({
+        "following": FieldValue.arrayUnion([targetUser.uid]),
+      });
+
+      await _firebaseFirestore.collection('users').doc(targetUser.uid).update({
+        "followers": FieldValue.arrayUnion([currentUser.uid]),
+      });
     }
   }
 }

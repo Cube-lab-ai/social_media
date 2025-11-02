@@ -100,7 +100,6 @@ class PostCubit extends Cubit<PostState> {
         emit(PostErrorState(message: 'Post not found'));
       }
     } catch (e) {
-      print(e);
       emit(PostErrorState(message: 'failed to add comment $e'));
     }
   }

@@ -3,4 +3,5 @@ import 'package:social_media_firebase/features/profile/domain/entites/profile_us
 abstract class ProfileRepository {
   Future<ProfileUser?> fetchProfileUser(String uid);
   Future<void> updateProfileUser(ProfileUser user);
+  Future<void> toggleFollow(ProfileUser currentUser, ProfileUser targetUser);
 }

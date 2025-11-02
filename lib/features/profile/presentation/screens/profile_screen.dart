@@ -4,9 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import 'package:social_media_firebase/features/auth/domain/entities/app_user.dart';
+import 'package:social_media_firebase/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:social_media_firebase/features/posts/domain/entities/post.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_cubit.dart';
 import 'package:social_media_firebase/features/posts/presentation/cubits/post_state.dart';
+import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 import 'package:social_media_firebase/features/profile/presentation/components/bio_box.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_states.dart';
@@ -22,10 +25,44 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final ProfileCubits _profileCubits = context.read<ProfileCubits>();
+  late final AuthCubits _authCubits = context.read<AuthCubits>();
+  AppUser? _currentUser;
+
   @override
   void initState() {
     super.initState();
     _profileCubits.fetchProfileUser(widget.uid);
+    _currentUser = _authCubits.currentUser!;
+    checkProfile();
+  }
+
+  void toggleFollow() {
+    final currentState = _profileCubits.state;
+
+    if (currentState is! ProfileLoadedState) {
+      return;
+    }
+
+    final ProfileUser profileState = currentState.user;
+
+    if (profileState.followers.contains(_currentUser!.uid)) {
+      setState(() {
+        profileState.followers.remove(_currentUser!.uid);
+      });
+    } else {
+      setState(() {
+        profileState.followers.add(_currentUser!.uid);
+      });
+    }
+
+    _profileCubits.toggleFollow(_currentUser!.uid, widget.uid);
+  }
+
+  bool isOwnProfile = false;
+  void checkProfile() {
+    if (_currentUser!.uid == widget.uid) {
+      isOwnProfile = true;
+    }
   }
 
   @override
@@ -95,6 +132,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // So visually:
 
                 // The Row spans the full width of the screen, but the Container inside it only occupies the width of the text plus padding
+
+                // follow / unfollow button
+                SizedBox(height: 20),
+
+                if (!isOwnProfile)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    width: double.infinity,
+                    child: MaterialButton(
+                      onPressed: toggleFollow,
+                      color:
+                          state.user.followers.contains(_currentUser!.uid)
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.blue,
+                      child: Padding(
+                        padding: EdgeInsets.all(25),
+                        child: Text(
+                          state.user.followers.contains(_currentUser!.uid)
+                              ? "Unfollow"
+                              : "Follow",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 20),
                 Row(
                   children: [
                     Container(
@@ -127,7 +190,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 BlocBuilder<PostCubit, PostState>(
                   builder: (context, state) {
-                    print(state);
                     if (state is PostLoadedState) {
                       final List<Post> postItem =
                           state.post

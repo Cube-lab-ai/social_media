@@ -86,4 +86,14 @@ class ProfileCubits extends Cubit<ProfileState> {
       emit(ProfileErrorState(message: e.toString()));
     }
   }
+
+  void toggleFollow(String currentUserId, String targetUserId) async {
+    // fetch profile for currentuserid, and targetuserid
+    final currentUser = await profilerepo.fetchProfileUser(currentUserId);
+    final targetUser = await profilerepo.fetchProfileUser(targetUserId);
+
+    if (currentUser != null && targetUser != null) {
+      await profilerepo.toggleFollow(currentUser, targetUser);
+    }
+  }
 }
