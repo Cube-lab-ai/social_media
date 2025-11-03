@@ -74,10 +74,4 @@ class FirebasePostRepo extends PostRepo {
       throw Exception('Unable to update comment $e');
     }
   }
-
-  @override
-  Future<void> deleteComment(String postId, String commentId) {
-    // TODO: implement deleteComment
-    throw UnimplementedError();
-  }
 }

@@ -14,8 +14,7 @@ import 'package:social_media_firebase/features/search/data/firebase_search_repo.
 import 'package:social_media_firebase/features/search/presentation/cubits/search_cubits.dart';
 import 'package:social_media_firebase/features/settings/theme_cubits.dart';
 import 'package:social_media_firebase/features/storage/firebase_storage_repo.dart';
-import 'package:social_media_firebase/themes/dark_mode.dart';
-import 'package:social_media_firebase/themes/light_mode.dart';
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

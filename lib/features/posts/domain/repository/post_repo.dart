@@ -7,5 +7,4 @@ abstract class PostRepo {
   Future<Post?> fetchPostById(String postId);
   Future<void> togglePostLike(Post post);
   Future<void> addComment(String postId, List<Map<String, dynamic>> comment);
-  Future<void> deleteComment(String postId, String commentId);
 }
