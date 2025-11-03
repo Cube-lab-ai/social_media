@@ -10,7 +10,11 @@ import 'package:social_media_firebase/features/posts/presentation/cubits/post_cu
 import 'package:social_media_firebase/features/posts/presentation/pages/post_page.dart';
 import 'package:social_media_firebase/features/profile/data/firebase_profile_repository.dart';
 import 'package:social_media_firebase/features/profile/presentation/cubits/profile_cubits.dart';
+import 'package:social_media_firebase/features/search/data/firebase_search_repo.dart';
+import 'package:social_media_firebase/features/search/presentation/cubits/search_cubits.dart';
+import 'package:social_media_firebase/features/settings/theme_cubits.dart';
 import 'package:social_media_firebase/features/storage/firebase_storage_repo.dart';
+import 'package:social_media_firebase/themes/dark_mode.dart';
 import 'package:social_media_firebase/themes/light_mode.dart';
 
 class MyApp extends StatefulWidget {
@@ -32,6 +36,9 @@ class _MyAppState extends State<MyApp> {
 
   // post repo
   final postRepo = FirebasePostRepo();
+
+  // search repo
+  final searchRepo = FirebaseSearchRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -55,43 +62,54 @@ class _MyAppState extends State<MyApp> {
               (context) =>
                   PostCubit(storageRepo: storageRepo, postRepo: postRepo),
         ),
+
+        BlocProvider(create: (context) => SearchCubits(searchRepo: searchRepo)),
+
+        BlocProvider(create: (context) => ThemeCubits()),
       ],
 
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: lightMode,
-        darkTheme: darkMode,
-        themeMode: ThemeMode.system,
-        home: Scaffold(
-          body: BlocConsumer<AuthCubits, AuthStates>(
-            builder: (context, state) {
-              if (state is AuthEnticatedState) {
-                return HomePage();
-              } else if (state is UnAuthenticatedState) {
-                return AuthPages();
-              } else {
-                return PostSkeletonShimmer();
-              }
-            },
-            listener: (context, state) {
-              if (state is AuthEnticatedState) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Login Success')));
-              } else if (state is AuthErrorState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Login Failed ${state.errorMessage}')),
-                );
-              } else if (state is UnAuthenticatedState) {
-                (state.message != null)
-                    ? ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message.toString())),
-                    )
-                    : Container();
-              }
-            },
-          ),
-        ),
+      child: BlocBuilder<ThemeCubits, ThemeData>(
+        builder: (context, state) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: state,
+            // theme: lightMode,
+            // darkTheme: darkMode,
+            // themeMode: ThemeMode.system,
+            home: Scaffold(
+              body: BlocConsumer<AuthCubits, AuthStates>(
+                builder: (context, state) {
+                  if (state is AuthEnticatedState) {
+                    return HomePage();
+                  } else if (state is UnAuthenticatedState) {
+                    return AuthPages();
+                  } else {
+                    return PostSkeletonShimmer();
+                  }
+                },
+                listener: (context, state) {
+                  if (state is AuthEnticatedState) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Login Success')));
+                  } else if (state is AuthErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Login Failed ${state.errorMessage}'),
+                      ),
+                    );
+                  } else if (state is UnAuthenticatedState) {
+                    (state.message != null)
+                        ? ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.message.toString())),
+                        )
+                        : Container();
+                  }
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }

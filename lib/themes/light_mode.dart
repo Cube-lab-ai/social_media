@@ -11,15 +11,3 @@ ThemeData lightMode = ThemeData(
   ),
   scaffoldBackgroundColor: Colors.grey.shade300,
 );
-
-ThemeData darkMode = ThemeData(
-  colorScheme: ColorScheme.dark(
-    surface: Colors.grey.shade800,
-    primary: Colors.grey.shade400,
-    secondary: Colors.grey.shade700,
-
-    tertiary: Colors.grey.shade600,
-    inversePrimary: Colors.grey.shade100,
-  ),
-  scaffoldBackgroundColor: Colors.grey.shade900,
-);
