@@ -21,6 +21,8 @@ class Post {
     required this.comments,
   });
 
+  // post['userId'] is dynamic from Map<String, dynamic>.
+  // dynamic can be string during run type without type case
   factory Post.fromMap(Map<String, dynamic> post) {
     final comment =
         (post['comments'] as List<dynamic>?)
@@ -38,7 +40,6 @@ class Post {
       comments: comment,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
