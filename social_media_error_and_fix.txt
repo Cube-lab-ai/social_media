@@ -1,0 +1,162 @@
+// identify the mistake and fix 
+
+class ProfileScreen extends StatefulWidget {
+  final String uid;
+  const ProfileScreen({super.key, required this.uid});
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final ProfileCubits _profileCubits = ProfileCubits(
+    profilerepo: FirebaseProfileRepo(),
+  );
+  @override
+  void initState() {
+    super.initState();
+    _profileCubits.fetchProfileUser(widget.uid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Profile Screen'),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.upload))],
+      ),
+      drawer: AppDrawer(),
+      body: BlocConsumer<ProfileCubits, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileSuccessState) {
+            return Text(state!.user.bio);
+          } else if (state is ProfileLoadingState) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Center(child: Text('unable to fetch profile user'));
+          }
+        },
+        listener: (context, state) {
+          if (state is ProfileFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('unable to fetch profile user')),
+            );
+          } else if (state is ProfileSuccessState) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Success')));
+          }
+        },
+      ),
+    );
+  }
+}
+
+
+
+
+✅ Option 1: Use BlocProvider in build method
+
+You can wrap the whole Scaffold with a BlocProvider inside the build() method:
+
+@override
+Widget build(BuildContext context) {
+  return BlocProvider<ProfileCubits>(
+    create: (context) => ProfileCubits(profilerepo: FirebaseProfileRepo())..fetchProfileUser(widget.uid),
+    child: Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Profile Screen'),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.upload))],
+      ),
+      drawer: AppDrawer(),
+      body: BlocConsumer<ProfileCubits, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileSuccessState) {
+            return Text(state.user.bio);
+          } else if (state is ProfileLoadingState) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Center(child: Text('unable to fetch profile user'));
+          }
+        },
+        listener: (context, state) {
+          if (state is ProfileFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('unable to fetch profile user')),
+            );
+          } else if (state is ProfileSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Success')),
+            );
+          }
+        },
+      ),
+    ),
+  );
+}
+
+
+✅ Option 2: Provide BlocProvider from parent widget or route
+
+If ProfileScreen is being pushed via navigation, do this where you navigate to it:
+
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => BlocProvider(
+      create: (_) => ProfileCubits(profilerepo: FirebaseProfileRepo())..fetchProfileUser(uid),
+      child: ProfileScreen(uid: uid),
+    ),
+  ),
+);
+
+
+❌ Why the previous version didn't work
+
+Previously, you did this:
+
+
+final ProfileCubits _profileCubits = ProfileCubits(...);
+
+@override
+void initState() {
+  super.initState();
+  _profileCubits.fetchProfileUser(widget.uid);
+}
+
+❌  But in your widget tree, you had:
+
+
+BlocConsumer<ProfileCubits, ProfileState>(
+  builder: (context, state) {
+    // ...
+  }
+)
+
+
+
+
+This BlocConsumer is trying to listen to a cubit from context, but you never provided the _profileCubits instance to the context using BlocProvider.
+
+So Flutter had two separate things:
+
+    ✅ You manually created and used _profileCubits, which emitted state.
+
+    ❌ Your UI (BlocConsumer) was listening to context.read<ProfileCubits>(), which returned nothing because no BlocProvider was set.
+
+    So: _profileCubits.emit(...) was working, but no one was listening — hence, no UI update.
+
+
+🧠 Analogy
+
+Think of it like this:
+
+You created a radio station (_profileCubits) and started broadcasting.
+
+But your UI had its radio tuned to a different station (from context) — which had no signal.
+
+So even though you were emitting the correct signal, your listener wasn’t on the right frequency.
+
