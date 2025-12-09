@@ -1,4 +1,3 @@
-
 import 'package:social_media_firebase/features/profile/domain/entites/profile_user.dart';
 
 class ProfileState {}

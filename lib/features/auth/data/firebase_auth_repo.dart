@@ -32,7 +32,7 @@ class FirebaseAuthRepo extends AuthRepo {
 
       return AppUser(
         uid: result.user!.uid,
-        name: userName!,
+        name: userName ?? "",
         email: result.user!.email!,
       );
     } catch (e) {
@@ -88,7 +88,7 @@ class FirebaseAuthRepo extends AuthRepo {
       return null;
     }
 
-    return AppUser(uid: user.uid, name: userName!, email: user.email!);
+    return AppUser(uid: user.uid, name: userName ?? "", email: user.email!);
   }
 
   @override
